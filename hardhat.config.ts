@@ -25,20 +25,17 @@ const config: HardhatUserConfig = {
       {
         version: '0.8.24',
       },
-      {
-        version: '0.8.13',
-      },
     ],
     overrides: {
-      'contracts/unchecked-returns-3/USDC.sol': {
+      'contracts/unchecked-return-3/USDC.sol': {
         version: '0.6.12',
         settings: {},
       },
-      'contracts/unchecked-returns-3/DAI.sol': {
+      'contracts/unchecked-return-3/DAI.sol': {
         version: '0.5.12',
         settings: {},
       },
-      'contracts/unchecked-returns-3/UST.sol': {
+      'contracts/unchecked-return-3/UST.sol': {
         version: '0.4.17',
         settings: {},
       },
@@ -57,11 +54,11 @@ if (process.argv[3] != undefined) {
 if (
   scriptName.includes('dex-1') ||
   scriptName.includes('dex-2') ||
-  scriptName.includes('flash-loans-3') ||
-  scriptName.includes('flash-loans-2') ||
+  scriptName.includes('flash-loan-3') ||
+  scriptName.includes('flash-loan-2') ||
   scriptName.includes('oracle-manipulation-2') ||
   scriptName.includes('oracle-manipulation-3') ||
-  scriptName.includes('optimizer-vaults-2')
+  scriptName.includes('optimizer-vault-2')
 ) {
   console.log(`Forking Mainnet Block Height ${MAINNET_FORK_BLOCK_NUMBER}`);
   config.networks = {
@@ -72,7 +69,7 @@ if (
       },
     },
   };
-} else if (scriptName.includes('frontrunning') || scriptName.includes('optimizer-vaults-1')) {
+} else if (scriptName.includes('frontrunning') || scriptName.includes('optimizer-vault-1')) {
   // Frontrunning exercises are with "hardhat node mode", mining interval is 10 seconds
   console.log(`Forking Mainnet Block Height ${MAINNET_FORK_BLOCK_NUMBER}, Manual Mining Mode`);
   config.networks = {
@@ -88,7 +85,7 @@ if (
       gas: 'auto',
     },
   };
-} else if (scriptName.includes('money-markets')) {
+} else if (scriptName.includes('money-market')) {
   console.log(`Forking Mainnet Block Height ${MAINNET_FORK_BLOCK_NUMBER_MONEY_MARKET}`);
   config.networks = {
     hardhat: {
@@ -98,7 +95,7 @@ if (
       },
     },
   };
-} else if (scriptName.includes('sensitive-on-chain-data-2') || scriptName.includes('sensitive-on-chain-data-3')) {
+} else if (scriptName.includes('sensitive-on-chain-data-1') || scriptName.includes('sensitive-on-chain-data-2')) {
   console.log(`Forking Goerli Block Height ${GOERLI_FORK_BLOCK_NUMBER}`);
   config.networks = {
     hardhat: {

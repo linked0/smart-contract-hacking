@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.24;
 
-/**
- * @title UnrestrictedOwner
- * @author JohnnyTime (https://smartcontractshacking.com)
- */
 contract UnrestrictedOwner {
 
   address public owner;
