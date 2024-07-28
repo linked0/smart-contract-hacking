@@ -23,7 +23,7 @@ It takes so so long time to test the DOS Attacks Exercise 1 that is located in `
 
 ## Details of hacking exercises
 
-### Unchecked Returns Exercise 1 (`test/5-unchecked-1.ts`)
+### Unchecked Returns Exercise 1 (`test/5-unchecked-return-1.ts`)
 #### Hacking Point
 1. The low level calls like `send`, `call`, `delegatecall`, and `staticcall` don't revert.
 2. If you don't check return value in sending ETHs, you can lose the money.
