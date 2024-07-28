@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
-import { DonationMaster, MultiSigSafe, DonationMasterSecured, MultiSigSafeSecured } from '../../typechain-types';
+import { DonationMaster, MultiSigSafe, DonationMasterSecured, MultiSigSafeSecured } from '../typechain-types';
 
 const { deployContract, getSigners, parseEther } = ethers;
 

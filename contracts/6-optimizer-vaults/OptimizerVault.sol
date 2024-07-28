@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "../interfaces/IOptimizerStrategy.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @notice Implementation of a vault to deposit funds into for yield optimizing.
@@ -80,7 +78,6 @@ contract OptimizerVault is ERC20, ReentrancyGuard {
     uint256 shares = 0;
     if (totalSupply() == 0) shares = _amount;
     else shares = (_amount * totalSupply()) / _pool;
-
     _mint(msg.sender, shares);
   }
 

@@ -2,7 +2,6 @@ import fs from 'fs';
 
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { expect } from "chai";
-import { formatBytes32String } from 'ethers-v5/lib/utils';
 import { ethers } from "hardhat";
 
 import { CrypticRaffle, SecretDoor } from '../typechain-types';
@@ -12,7 +11,7 @@ const { deployContract, getSigners, encodeBytes32String, parseEther, formatUnits
 describe('Sensitive On-Chain Data Exercise 3', () => {
   const provider = ethers.provider;
   let attacker: SignerWithAddress, addictedGambler1: SignerWithAddress, addictedGambler2: SignerWithAddress;
-  const CRYPTIC_RAFFLE_ABI = fs.readFileSync('./test/zhacking/CrypticRaffle.json').toString();
+  const CRYPTIC_RAFFLE_ABI = fs.readFileSync('./test/CrypticRaffleABI.json').toString();
   const CRYPTIC_RAFFLE_ADDRESS = "0xca0B461f6F8Af197069a68f5f8A263b497569140";
 
   const PARTICIPATION_PRICE = parseEther('0.01');

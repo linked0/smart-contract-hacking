@@ -28,6 +28,11 @@ describe('Call Attack Exercise 3', () => {
 
     cryptoKeeperFactory = await deployContract('CryptoKeeperFactory', [deployer.address, cryptoKeeperTemplate.target]);
 
+    // fund to each users
+    await deployer.sendTransaction({ to: user1, value: parseEther('100') });
+    await deployer.sendTransaction({ to: user2, value: parseEther('100') });
+    await deployer.sendTransaction({ to: user3, value: parseEther('100') });
+
     // User1 creating CryptoKeepers
     const User1Salt = keccak256(toUtf8Bytes(user1.address));
     const cryptoKeeper1Address = await cryptoKeeperFactory.predictCryptoKeeperAddress(User1Salt);

@@ -12,11 +12,24 @@ const COMPILERS = [
   {
     version: '0.8.24',
   },
+  {
+    version: '0.6.12',
+  },
+  {
+    version: '0.6.0',
+  },
+  {
+    version: '0.5.12',
+  },
+  {
+    version: '0.4.24',
+  },
 ];
+
 
 let scriptName;
 
-if(process.argv[3] != undefined) {
+if (process.argv[3] != undefined) {
   scriptName = process.argv[3];
 } else {
   scriptName = ""
@@ -46,9 +59,9 @@ if (
     },
   };
 } else if (
-  scriptName.includes('frontrunning') || 
+  scriptName.includes('frontrunning') ||
   scriptName.includes('optimizer-vaults-1')
-  ) {
+) {
   // Frontrunning exercises are with "hardhat node mode", mining interval is 10 seconds
   console.log(`Forking Mainnet Block Height ${MAINNET_FORK_BLOCK_NUMBER}, Manual Mining Mode with interval of 10 seconds`);
   module.exports = {

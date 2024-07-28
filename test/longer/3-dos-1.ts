@@ -4,7 +4,7 @@ import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { FlashLoanUser, TokenSale, Auction, ShibaPool, ShibaToken } from '../typechain-types';
+import { FlashLoanUser, TokenSale, Auction, ShibaPool, ShibaToken } from '../../typechain-types';
 
 const { deployContract, getSigners, parseEther } = ethers;
 
@@ -24,6 +24,11 @@ describe("DOS Attacks Exercise 1", () => {
   before(async () => {
     [deployer, user1, user2, user3, attacker] = await getSigners();
     tokenSale = await deployContract('TokenSale');
+
+    // fund to each users
+    await deployer.sendTransaction({ to: user1, value: parseEther('100') });
+    await deployer.sendTransaction({ to: user2, value: parseEther('100') });
+    await deployer.sendTransaction({ to: user3, value: parseEther('100') });
 
     // Invest
     await tokenSale.connect(user1).invest({ value: USER1_INVESTMENT });

@@ -1,7 +1,6 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import { bigint } from 'hardhat/internal/core/params/argumentTypes';
 
 import { IERC20, OptimizerStrategy, OptimizerVault, YieldContract } from '../typechain-types';
 
@@ -10,7 +9,7 @@ const { provider, deployContract, getSigners, parseEther, parseUnits } = ethers;
 // NOTE: Typescript 버전에서는 실행이 안됨. hardhat 설정 문제인 것 같음
 // 아래 파일로 테스트하면 잘 됨, yarn optimizer-vaults-1 
 // smart-contract-hacking/javascript/test/6-optimizer-vaults-1.js
-describe('Optimizer Vaults 101 Exercise 1', () => {
+describe.skip('Optimizer Vaults 101 Exercise 1', () => {
   /** SETUP EXERCISE - DON'T CHANGE ANYTHING HERE */
 
   let deployer: SignerWithAddress;
