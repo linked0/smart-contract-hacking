@@ -27,7 +27,7 @@ Testing the DOS Attacks Exercise 1 located in `test/longer/3-dos-1.ts` takes a l
 #### Exercise 1
 `test/2-dao-attack-1`
 
-##### Hacking Point
+##### Attack Vector
 ```sol
 function mint(address _to, uint256 _amount) public onlyOwner {
     _mint(_to, _amount);
@@ -42,7 +42,7 @@ We have to calculate the voting power in transfer-like functions also.
 #### Exercise 2
 `test/2-dao-attack-2`
 
-##### Hacking Point
+##### Attack Vector
 An attacker can get their proposal approved by transferring their deposit funds to a newly created temporary wallet and having that wallet vote for the proposal. The attacker can repeat this process by transferring the funds to another wallet, thereby accumulating enough votes to get the proposal approved.
 
 ##### Solution
@@ -51,7 +51,7 @@ we need to calculate the voting power in transfer-like functions as well.
 #### Exercise 3
 `test/2-dao-attack-3`
 
-##### Hacking Point
+##### Attack Vector
 An attacker can borrow a flash loan to vote for their malicious proposal with the significant voting power acquired from the flash loan. Refer to this flash loan code in the attacker contract.
 ```sol
 function attack() external {
@@ -77,7 +77,7 @@ We need to consider using `ERC20Snapshot` for the DAO contract, as demonstrated 
 #### Exercise 1
 `test/3-dos-attack-1`
 
-##### Hacking Point
+##### Attack Vector
 ```node
 const ATTACKER_INVESTMENT = parseEther('0.000000000001');
 for (let i = 0; i < 10000; i++) {
@@ -96,7 +96,7 @@ for (uint k = 0; k < userInvestments.length; k++) {
 #### Exercise 2
 `test/3-dos-attack-2`
 
-##### Hacking Point
+##### Attack Vector
 ```node
 const attackAuction = await deployContract('AttackAuction', [auction.target], {
     value: currentHighestBid + parseEther('0.00000001')
@@ -119,7 +119,7 @@ function bid() external payable {
 #### Exercise 3
 `test/3-dos-attack-3`
 
-##### Hacking Point
+##### Attack Vector
 ```sol
 function flashLoan(uint256 borrowAmount) external nonReentrant {
     // Checks
@@ -143,7 +143,7 @@ We have to add calculating code in the payable `receive` function.
 #### Exercise 1
 `test/0-sensitive-on-chain-data-1`
 
-##### Hacking Point
+##### Attack Vector
 ```sol
 contract SecretDoor is Ownable, ReentrancyGuard {
   bool public isLocked;
@@ -166,7 +166,7 @@ Remember that private storage variables are never truly private!
 #### Exercise 2
 `test/0-sensitive-on-chain-data-2`
 
-##### Hacking Point
+##### Attack Vector
 ```sol
 function newRaffle(uint8[3] calldata numbers) external onlyOwner {
     raffleId += 1;
@@ -222,7 +222,7 @@ Remember that private storage variables are never truly private, again!
 #### Exercise 1
 `test/5-unchecked-return-1.ts`
 
-##### Hacking Point
+##### Attack Vector
 1. Low-level calls like `send`, `call`, `delegatecall`, and `staticcall` do not revert automatically.
 2. If you don't check the return value when sending ETH, you can lose the money.
 3. This is a bad pattern to follow.
@@ -239,6 +239,48 @@ payable(donation.to).call{value: msg.value}("");
 require(success, "donation failed, couldn't send ETH");
 ```
 
+### Oracle Manipulation
+
+#### Exercise 1
+`test/7-oracle-manipulation-1.ts`
+
+##### Attack Vector
+```sol
+contract GoldOracle {
+  address[] sources;
+  mapping(address => uint256) public getPriceBySource;
+
+  modifier onlySource() {
+    bool isSource = false;
+    for (uint i = 0; i < sources.length; i++) {
+      if (msg.sender == sources[i]) {
+        isSource = true;
+      }
+    }
+    require(isSource, "Not a source");
+    _;
+  }
+
+  ...
+
+  function postPrice(uint256 newPrice) external onlySource {
+    _setPrice(msg.sender, newPrice);
+  }
+  ...
+}
+```
+If the keys of sources are compromized, the gold price can be manipulated.
+
+##### Solution
+
+1. **Multi-Sig for Sources**: Use a multi-signature mechanism so that multiple approvals are needed to update the price.
+2. **Decentralized Oracles**: Aggregate data from multiple decentralized oracle sources to reduce reliance on individual entities.
+3. **Reputation-Based Systems**: Implement a mechanism where sources build a reputation over time, and less trusted sources have less influence.
+4. **Consensus Mechanism**: Implement a consensus algorithm among sources to agree on the price.
+5. **Price Validations**: Implement validation checks to ensure that the new price is within reasonable bounds.
+6. **Time-Locked Updates**: Time-lock the updates so that any change in price will take effect only after a certain period, giving time for review.
+
+
 ### Call Attack
 Will be added soon.
 
@@ -246,9 +288,6 @@ Will be added soon.
 Will be added soon.
 
 ### Flash Loan Attack
-Will be added soon.
-
-### Oracle Manipulation
 Will be added soon.
 
 ### Reply Attack
