@@ -17,8 +17,8 @@ yarn build
 yarn test
 ```
 
-### test for DOS attacks exercise 1
-It takes so long time to test the DOS Attacks Exercise 1 that is located in `test/longer/3-dos-1.ts`. So you should test the exercise only and use 'yarn test:longer'.
+### test for DOS attack exercise 1
+Testing the DOS Attacks Exercise 1 located in `test/longer/3-dos-1.ts` takes a long time. Therefore, you should test only this exercise using `yarn test`
 
 
 ## List of Smart Contract Hacking
@@ -34,7 +34,7 @@ function mint(address _to, uint256 _amount) public onlyOwner {
     getVotingPower[_to] += _amount;
 }
 ```
-This function is a member of DAO contract that inherits from ERC20. This kind of accounting make a hole for vulnerability. Because a malicious voter can have voting power after transferring their deposit fund.
+This function is a member of a DAO contract that inherits from ERC20. This type of accounting creates a vulnerability because a malicious voter can retain voting power even after transferring their deposit funds.
 
 ##### Solution
 We have to calculate the voting power in transfer-like functions also.
@@ -43,17 +43,16 @@ We have to calculate the voting power in transfer-like functions also.
 `test/2-dao-attack-2`
 
 ##### Hacking Point
-An attacker can make his proposal approved because he can transfer his deposit fund to other temporary created wallet and make the wallet vote for him. And he can transfer the fund to the other one. All these actions can make his proposal approved.
+An attacker can get their proposal approved by transferring their deposit funds to a newly created temporary wallet and having that wallet vote for the proposal. The attacker can repeat this process by transferring the funds to another wallet, thereby accumulating enough votes to get the proposal approved.
 
 ##### Solution
-We have to consider using the `ERC20Snapshot` for DAO contract
+we need to calculate the voting power in transfer-like functions as well.
 
 #### Exercise 3
 `test/2-dao-attack-3`
 
 ##### Hacking Point
-An attacker can borrow a flash loan to vote for his malicious proposal with great voting power that he earned the flash loan.
-Look at this flash loan code in attacker contract.
+An attacker can borrow a flash loan to vote for their malicious proposal with the significant voting power acquired from the flash loan. Refer to this flash loan code in the attacker contract.
 ```sol
 function attack() external {
     require(msg.sender == owner, "not owner");
@@ -71,7 +70,7 @@ function callBack(uint borrowAmount) external {
 ```
 
 ##### Solution
-We have to consider using the `ERC20Snapshot` for DAO contract as in the exercise 2.
+We need to consider using `ERC20Snapshot` for the DAO contract, as demonstrated in Exercise 2.
 
 ### DOS Attack
 
@@ -85,7 +84,7 @@ for (let i = 0; i < 10000; i++) {
     await tokenSale.connect(attacker).invest({ value: ATTACKER_INVESTMENT });
 }
 ```
-If an attacker invest tiny amount of money so many times for ICO. The ICO contract can't distribute its ERC20 token because gas limit exceeds with the following code.
+If an attacker invests a small amount of money numerous times in an ICO, the ICO contract may fail to distribute its ERC20 tokens because the gas limit is exceeded with the following code.
 ```sol
 // investor => [0.0000001, 0.00000001, .....]
 for (uint k = 0; k < userInvestments.length; k++) {
@@ -104,7 +103,7 @@ const attackAuction = await deployContract('AttackAuction', [auction.target], {
 });
 let highestBid = await auction.highestBid();
 ```
-If the `attackAuction` doesn't have any payable function, the following contract function always fails after the attacker bids. So the bid will not work anymore.
+If the `AttackAuction` contract doesn't have any payable function, the following contract function will always fail after the attacker bids. As a result, the bid will no longer work.
 
 ```sol
 function bid() external payable {
@@ -130,7 +129,7 @@ function flashLoan(uint256 borrowAmount) external nonReentrant {
     ...
 }
 ```
-This kind of code can make a hole for accounting issue. Because the `poolBalance` can be different from `shibaToken.balanceOf(address(this)`. An attacker can make the code unusable by the following code.
+This kind of code can create an accounting issue because the `poolBalance` may differ from `shibaToken.balanceOf(address(this))`. An attacker can render the code unusable with the following method.
 ```node
 await token.connect(attacker).transfer(pool.target, parseEther('1'));
 ```
@@ -154,16 +153,15 @@ contract SecretDoor is Ownable, ReentrancyGuard {
   ...
 }
 ```
-The private variables are not really private because the data can be found block explorer or tools like 'cast' if an attacker know the contract address and can guess what storages is used for the private variables.
-The following `cast` command is an example.
+Private variables are not truly private because the data can be found using block explorers or tools like `cast` if an attacker knows the contract address and can guess which storage slots are used for the private variables. The following `cast` command is an example.
 ```shell
 cast storage 0x5aF6D33DE2ccEC94efb1bDF8f92Bd58085432d2c 3 --rpc-url https://rpc.ankr.com/bsc
 ```
-`0x5aF6D33DE2ccEC94efb1bDF8f92Bd58085432d2c` is the contract address.
-`3` is the storage slot.
+- `0x5aF6D33DE2ccEC94efb1bDF8f92Bd58085432d2c` is the contract address.
+- `3` is the storage slot.
 
 ##### Solution
-To know that private storage variables are never private!
+Remember that private storage variables are never truly private!
 
 #### Exercise 2
 `test/0-sensitive-on-chain-data-2`
@@ -176,10 +174,9 @@ function newRaffle(uint8[3] calldata numbers) external onlyOwner {
     isActive = true;
 }
 ```
-If you create a contract for an lottery system for users guessing some numbers, the new secret numbers should be set periodically by the owner. But
-What if an attacker knows `the contract address` and the `sighash` for the function like `newRaffle`.
+If you create a contract for a lottery system where users guess numbers, the new secret numbers should be set periodically by the owner. However, what if an attacker knows the `contract address` and the `sighash` for a function like `newRaffle`?
 
-The details are following.
+The details are as follows:
 ```
 CMD: cast storage [contract] [slot] --rpc-url https://ethereum-goerli-rpc.allthatnode.com
 
@@ -218,7 +215,7 @@ Input data:
 ```
 
 ##### Solution
-To know that private storage variables are never private again!
+Remember that private storage variables are never truly private, again!
 
 ### Unchecked Return Attack
 
@@ -226,9 +223,9 @@ To know that private storage variables are never private again!
 `test/5-unchecked-return-1.ts`
 
 ##### Hacking Point
-1. The low level calls like `send`, `call`, `delegatecall`, and `staticcall` don't revert.
-2. If you don't check return value in sending ETHs, you can lose the money.
-3. This is the bad pattern.
+1. Low-level calls like `send`, `call`, `delegatecall`, and `staticcall` do not revert automatically.
+2. If you don't check the return value when sending ETH, you can lose the money.
+3. This is a bad pattern to follow.
 ```
 payable(_to).send(_amount);
 ```
