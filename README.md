@@ -18,7 +18,7 @@ yarn test
 ```
 
 ### test for DOS attack exercise 1
-Testing the DOS Attacks Exercise 1 located in `test/longer/3-dos-1.ts` takes a long time. Therefore, you should test only this exercise using `yarn test`
+Testing the DOS Attacks Exercise 1 located in `test/longer/3-dos-1.ts` takes a long time. Therefore, you should test only this exercise using `yarn dos1`
 
 ### CAUTION!
 These exercises include free RPC URLs to connect to the Ethereum mainnet and Goerli network. However, you may encounter rate limits for making calls in a short period. If something goes wrong during testing with `yarn test`, I recommend testing each test separately.
