@@ -24,6 +24,7 @@
     "unchecked1": "hardhat test test/5-unchecked-return-1.ts",
     "vault1": "hardhat test test/6-optimizer-vault-1.ts",
     "oracle1": "hardhat test test/7-oracle-manipulation-1.ts",
+    "destruct1": "hardhat test test/8-selfdestruct-1.ts",
     "coverage": "yarn clean; hardhat coverage --config ./hardhat-coverage.config.ts --solcoverjs ./config/.solcover.js",
     "lint": "prettier --write --config .prettierrc 'contracts/**/*.sol' 'scripts/**/*.ts' 'test/**/*.ts'",
     "lint:check": "yarn lint:check:format && yarn lint:check:solhint && yarn lint:check:eslint",

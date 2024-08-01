@@ -46,6 +46,15 @@ This is the error message that appears when the above situation occurs.
 ```
 
 ## List of Smart Contract Hacking
+- [Call Attack](#call-attack)
+- [DAO Attack](#dao-attack)
+- [DOS Attack](#dos-attack)
+- [Sensitive Onchain Data](#sensitive-on-chain-data)
+- [Unchecked Return](#unchecked-return-attack)
+- [Optimizer Vault](#optimizer-vault)
+- [Oracle Manipulation](#oracle-manipulation)
+- [SELFDESTRUCT opcode](#selfdestruct-opcode)
+
 ### Call Attack
 
 #### Exercise 1
@@ -492,6 +501,65 @@ If the keys of sources are compromized, the gold price can be manipulated.
 4. **Consensus Mechanism**: Implement a consensus algorithm among sources to agree on the price.
 5. **Price Validations**: Implement validation checks to ensure that the new price is within reasonable bounds.
 6. **Time-Locked Updates**: Time-lock the updates so that any change in price will take effect only after a certain period, giving time for review.
+
+---
+### SELFDESTRUCT opcode
+
+#### Exercise 1
+- [EtherGame.sol](contracts/8-selfdestruct-1/EtherGame.sol)
+- [GameAttack.sol](contracts/8-selfdestruct-1/GameAttack.sol)
+- [8-selfdestruct-1.ts](test/8-selfdestruct-1.ts)
+
+##### Attack Vector
+```sol
+# EtherGame.sol
+function deposit() public payable {
+  require(msg.value == 1 ether, "You can only send 1 Ether");
+
+  uint256 balance = address(this).balance;
+  require(balance <= targetAmount, "Game is over");
+
+  if (balance == targetAmount) {
+    winner = msg.sender;
+  }
+}
+```
+
+The "selfdestruct" has been deprecated. Note that, starting from the Cancun hard fork, the underlying opcode no longer deletes the code and data associated with an account and only transfers its Ether to the beneficiary, unless executed in the same transaction in which the contract was created (see EIP-6780). But an attacker can call the function in any contracts and have its Ether transfered, so you should be cautious about using `address(this).balance`.
+
+An attacker can disable the deposit function by causing the `require` statement `require(balance <= targetAmount, "Game is over");` to repeatedly fail.
+
+##### Solution
+Don't rely on address(this).balance
+
+```sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract EtherGame {
+    uint256 public targetAmount = 3 ether;
+    uint256 public balance;
+    address public winner;
+
+    function deposit() public payable {
+        require(msg.value == 1 ether, "You can only send 1 Ether");
+
+        balance += msg.value;
+        require(balance <= targetAmount, "Game is over");
+
+        if (balance == targetAmount) {
+            winner = msg.sender;
+        }
+    }
+
+    function claimReward() public {
+        require(msg.sender == winner, "Not winner");
+
+        (bool sent,) = msg.sender.call{value: balance}("");
+        require(sent, "Failed to send Ether");
+    }
+}
+```
 
 ---
 ### Front Running
