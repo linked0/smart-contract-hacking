@@ -69,7 +69,7 @@ if (
       },
     },
   };
-} else if (scriptName.includes('frontrunning') || scriptName.includes('optimizer-vault-1')) {
+} else if (scriptName.includes('front-running') || scriptName.includes('optimizer-vault-1')) {
   // Frontrunning exercises are with "hardhat node mode", mining interval is 10 seconds
   console.log(`Forking Mainnet Block Height ${MAINNET_FORK_BLOCK_NUMBER}, Manual Mining Mode`);
   config.networks = {

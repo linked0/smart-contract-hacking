@@ -45,7 +45,7 @@ This is the error message that appears when the above situation occurs.
    at async Context.<anonymous> (test/4-sensitive-on-chain-data-2.ts:59:44)
 ```
 
-## List of Smart Contract Hacking
+# List of Smart Contract Hacking
 - [Call Attack](#call-attack)
 - [DAO Attack](#dao-attack)
 - [DOS Attack](#dos-attack)
@@ -54,18 +54,19 @@ This is the error message that appears when the above situation occurs.
 - [Optimizer Vault](#optimizer-vault)
 - [Oracle Manipulation](#oracle-manipulation)
 - [SELFDESTRUCT opcode](#selfdestruct-opcode)
+- [Front Running](#front-running)
 
-### Call Attack
+## Call Attack
 
-#### Exercise 1
+### Exercise 1
 - [RestrictedOwner.sol](contracts/1-call-attack-1/RestrictedOwner.sol)
 - [UnrestrictedOwner.sol](contracts/1-call-attack-1/UnrestrictedOwner.sol)
 - [5-unchecked-return-1.ts](test/1-call-attack-1.ts)
 
-##### Overview
+#### Overview
 The callee of the `delegatecall` by a caller has the context of the caller's storage and has the right to change the caller's storage.
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 contract RestrictedOwner {
 
@@ -92,17 +93,17 @@ contract UnrestrictedOwner {
 ```
 These two contracts have storage variables with the same name, `owner`. If an attacker makes an unmatched function call, which triggers the `fallback` function and subsequently calls the `changeOwner` function of `UnrestrictedOwner`, the `owner` storage value will be changed.
 
-##### Soultion
+#### Soultion
 1. **Avoid Delegatecall for Sensitive Operations**: Refrain from using `delegatecall` for critical operations that could alter sensitive storage variables.
 2. **Input Validation**: Validate inputs to ensure that the data being passed through `delegatecall` is expected and allowable.
 
----
-### DAO Attack
-#### Exercise 1
+
+## DAO Attack
+### Exercise 1
 - [RainbowAllianceToken.sol](contracts/2-dao-attack-1/RainbowAllianceToken.sol)
 - [2-dao-attack-1.ts](test/2-dao-attack-1.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 # RainbowAllianceToken.sol
 
@@ -132,18 +133,19 @@ function vote(uint _id, bool _decision) external {
 ```
 The attacker can retain voting power after transferring their deposit funds because `getVotingPower` remains the same as before.
 
-##### Solution
+#### Solution
 We have to calculate the voting power in transfer-like functions also.
 
-#### Exercise 2
+---
+### Exercise 2
 - [TheGridDAO.sol](contracts/2-dao-attack-2/TheGridDAO.sol)
 - [TheGridTreasury.sol](contracts/2-dao-attack-2/TheGridTreasury.sol)
 - [2-dao-attack-2.ts](test/longer/2-dao-attack-2.ts)
 
-##### Attack Vector
+#### Attack Vector
 An attacker can get their proposal approved by transferring their deposit funds to a newly created temporary wallet and having that wallet vote for the proposal. The attacker can repeat this process by transferring the funds to another wallet, thereby accumulating enough votes to get the proposal approved.
 
-##### Solution
+#### Solution
 We need to calculate the voting power in transfer-like functions as the solution for exercise 1.
 
 #### Exercise 3
@@ -174,17 +176,17 @@ function callBack(uint borrowAmount) external {
 }
 ```
 
-##### Solution
+#### Solution
 We need to consider using `ERC20Snapshot` for the DAO contract, as demonstrated in Exercise 2.
 
 ---
-### DOS Attack
+## DOS Attack
 
-#### Exercise 1
+### Exercise 1
 - [TokenSale.sol](contracts/3-dos/TokenSale.sol)
 - [test/3-dos-attack-1.ts](test/longer/3-dos-1.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```node
 # 3-dos-attack-1.ts
 
@@ -212,12 +214,12 @@ function distributeTokens() public onlyOwner {
 }
 ```
 
-#### Exercise 2
+### Exercise 2
 - [Auction.sol](contracts/3-dos/Auction.sol)
 - [AttackAuction.sol](contracts/3-dos/AttackAuction.sol)
 - [3-dos-attack-2.ts](test/3-dos-2.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```node
 # 3-dos-attack-2.ts
 
@@ -242,13 +244,13 @@ function bid() external payable {
 }
 ```
 
-#### Exercise 3
+### Exercise 3
 - [FlashLoanUser.sol](contracts/3-dos/FlashLoanUser.sol)
 - [ShibaPool.sol](contracts/3-dos/ShibaPool.sol)
 - [ShibaToken.sol](contracts/3-dos/ShibaToken.sol)
 - [3-dos-attack-3.ts](test/2-dao-attack-3.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 function flashLoan(uint256 borrowAmount) external nonReentrant {
   // Checks
@@ -263,17 +265,17 @@ This kind of code can create an accounting issue because the `poolBalance` may d
 await token.connect(attacker).transfer(pool.target, parseEther('1'));
 ```
 
-##### Solution
+#### Solution
 We have to add calculating code in the payable `receive` function.
 
 ---
-### Sensitive On-Chain Data
+## Sensitive On-Chain Data
 
-#### Exercise 1
+### Exercise 1
 - [SecureDoor.sol](contracts/0-sensitive-on-chain-data/SecretDoor.sol)
 - [0-sensitive-on-chain-data-1.ts](test/0-sensitive-on-chain-data-1.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 contract SecretDoor is Ownable, ReentrancyGuard {
   bool public isLocked;
@@ -290,14 +292,14 @@ cast storage 0x5aF6D33DE2ccEC94efb1bDF8f92Bd58085432d2c 3 --rpc-url https://rpc.
 - `0x5aF6D33DE2ccEC94efb1bDF8f92Bd58085432d2c` is the contract address.
 - `3` is the storage slot.
 
-##### Solution
+#### Solution
 Remember that private storage variables are never truly private!
 
-#### Exercise 2
+### Exercise 2
 - [CrypticRaffle.sol](contracts/0-sensitive-on-chain-data/CrypticRaffle.sol)
 - [0-sensitive-on-chain-data-2.ts](test/0-sensitive-on-chain-data-2.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 function newRaffle(uint8[3] calldata numbers) external onlyOwner {
     raffleId += 1;
@@ -345,20 +347,20 @@ Input data:
 
 ```
 
-##### Solution
+#### Solution
 Remember that private storage variables are never truly private, again!
 
 ---
-### Unchecked Return Attack
+## Unchecked Return Attack
 
-#### Exercise 1
+### Exercise 1
 - [DonationMaster.sol](contracts/5-unchecked-return-1/DonationMaster.sol)
 - [DonationMasterSecured.sol](contracts/5-unchecked-return-1/DonationMasterSecured.sol)
 - [MultiSigSafe.sol](contracts/5-unchecked-return-1/MultiSigSafe.sol)
 - [MultiSigSafeSecured.sol](contracts/5-unchecked-return-1/MultiSigSafeSecured.sol)
 - [5-unchecked-return-1.ts](test/5-unchecked-return-1.ts)
 
-##### Attack Vector
+#### Attack Vector
 1. Low-level calls like `send`, `call`, `delegatecall`, and `staticcall` do not revert automatically.
 2. If you don't check the return value when sending ETH, you can lose the money.
 3. This is a bad pattern to follow.
@@ -369,22 +371,22 @@ or
 ```
 payable(donation.to).call{value: msg.value}("");
 ```
-##### Solution
+#### Solution
 ```
 (bool success, ) = payable(donation.to).call{value: msg.value}("");
 require(success, "donation failed, couldn't send ETH");
 ```
 
 ---
-### Optimizer Vault
+## Optimizer Vault
 
-#### Exercise 1
+### Exercise 1
 - [OptimizerStrategy.sol](javascript-ex/contracts/6-optimizer-vault-1/OptimizerStrategy.sol)
 - [OptimizerStrategyManager.sol](javascript-ex/contracts/6-optimizer-vault-1/OptimizerStrategyManager.sol)
 - [OptimizerVault.sol](javascript-ex/contracts/6-optimizer-vault-1/OptimizerVault.sol)
 - [YieldContract.sol](javascript-ex/contracts/6-optimizer-vault-1/YieldContract.sol)
 
-##### build & test
+#### build & test
 ```shell
 cd javascript-ex
 yarn
@@ -392,7 +394,7 @@ yarn build
 yarn vault1
 ```
 
-##### Attack Vector
+#### Attack Vector
 ```
 # OptimizerVault.sol
 
@@ -453,20 +455,20 @@ However, `0.999980000199998` is discarded in Solidity.
 
 As a result, the attacker can retrieve approximately `$150,000` for an initial deposit of `$100,001`.
 
-##### Solution
+#### Solution
 1. **Use a Higher Precision Library**: Utilize a higher precision arithmetic library, like Fixed-Point arithmetic libraries, to minimize the loss due to rounding errors.
 
 
 ---
-### Oracle Manipulation
+## Oracle Manipulation
 
-#### Exercise 1
+### Exercise 1
 - [GoldExchange.sol](contracts/7-oracle-manipulation-1/GoldExchange.sol)
 - [GoldOracle.sol](contracts/7-oracle-manipulation-1/GoldOracle.sol)
 - [GoldToken.sol](contracts/7-oracle-manipulation-1/GoldToken.sol)
 - [7-oracle-manipulation-1.ts](test/7-oracle-manipulation-1.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 contract GoldOracle {
   address[] sources;
@@ -493,7 +495,7 @@ contract GoldOracle {
 ```
 If the keys of sources are compromized, the gold price can be manipulated.
 
-##### Solution
+#### Solution
 
 1. **Multi-Sig for Sources**: Use a multi-signature mechanism so that multiple approvals are needed to update the price.
 2. **Decentralized Oracles**: Aggregate data from multiple decentralized oracle sources to reduce reliance on individual entities.
@@ -503,14 +505,14 @@ If the keys of sources are compromized, the gold price can be manipulated.
 6. **Time-Locked Updates**: Time-lock the updates so that any change in price will take effect only after a certain period, giving time for review.
 
 ---
-### SELFDESTRUCT opcode
+## SELFDESTRUCT opcode
 
-#### Exercise 1
+### Exercise 1
 - [EtherGame.sol](contracts/8-selfdestruct-1/EtherGame.sol)
 - [GameAttack.sol](contracts/8-selfdestruct-1/GameAttack.sol)
 - [8-selfdestruct-1.ts](test/8-selfdestruct-1.ts)
 
-##### Attack Vector
+#### Attack Vector
 ```sol
 # EtherGame.sol
 function deposit() public payable {
@@ -529,7 +531,7 @@ The "selfdestruct" has been deprecated. Note that, starting from the Cancun hard
 
 An attacker can disable the deposit function by causing the `require` statement `require(balance <= targetAmount, "Game is over");` to repeatedly fail.
 
-##### Solution
+#### Solution
 Don't rely on address(this).balance
 
 ```sol
@@ -561,18 +563,48 @@ contract EtherGame {
 }
 ```
 
----
-### Front Running
-Will be added soon.
 
----
+## Front Running
+
+
+### Exercise 1
+- [FindMe.sol](contracts/9-front-running-1/FindMe.sol)
+- [9-front-running-1.ts](test/9-front-running-1.ts)
+
+This is the scenario. A pirate wrote a smart contract named `FindMe` for a treasure hunt game where the first person to find the hidden solution string can claim a reward of 10 ether using its `claim()` function.
+
+Can you find the secret answer and claim the prize?
+
+#### Attack Vector
+- You can always detect all the transactions in the `mempool` on Ethereum blockchain with the [`eth_getBlockByNumber`](https://ethereum.github.io/execution-apis/api-documentation/) method.
+-  You can front-run your transaction with more fee than the original transaction's fee.
+
+#### Solution
+1. Get all the transactions.
+```typescript
+const pendingBlock = await provider.send('eth_getBlockByNumber', ['pending', true]);
+```
+2. Find the transaction that goes to the pirate's smart contract.
+```typescript
+let transaction = pendingBlock.transactions.find(
+  (tx: any) => tx.to?.toLowerCase() == (findMe.target as string).toLowerCase()
+);
+```
+3. Send transaction with more gas fee. You only need one more gas.
+```typescript
+await attacker.sendTransaction({
+  to: transaction.to,
+  data: transaction.input,
+  gasPrice: transaction.gasPrice + 1,
+  gasLimit: transaction.gas,
+});
+```
+
 ### Flash Loan Attack
-Will be added soon.
+_Will be added soon._
 
----
 ### Replay Attack
-Will be added soon.
+_Will be added soon._
 
----
 ### DEFI Money Markets
-Will be added soon.
+_Will be added soon._
