@@ -67,7 +67,7 @@ This is the error message that appears when the above situation occurs.
 The callee of the `delegatecall` by a caller has the context of the caller's storage and has the right to change the caller's storage.
 
 #### Attack Vector
-```sol
+```typescript
 contract RestrictedOwner {
 
   address public owner;
@@ -82,7 +82,7 @@ contract RestrictedOwner {
 }
 ```
 
-```sol
+```typescript
 contract UnrestrictedOwner {
   address public owner;
 
@@ -104,7 +104,7 @@ These two contracts have storage variables with the same name, `owner`. If an at
 - [2-dao-attack-1.ts](test/2-dao-attack-1.ts)
 
 #### Attack Vector
-```sol
+```typescript
 # RainbowAllianceToken.sol
 
 function mint(address _to, uint256 _amount) public onlyOwner {
@@ -121,7 +121,7 @@ function vote(uint _id, bool _decision) external {
 ```
 This function is a member of a DAO contract that inherits from ERC20. This type of accounting creates a vulnerability because a malicious voter can retain voting power even after transferring their deposit funds.
 
-```sol
+```typescript
 # RainbowAllianceToken.sol
 
 function vote(uint _id, bool _decision) external {
@@ -158,7 +158,7 @@ We need to calculate the voting power in transfer-like functions as the solution
 
 ##### Attack Vector
 An attacker can borrow a flash loan to vote for their malicious proposal with the significant voting power acquired from the flash loan. Refer to this flash loan code in the attacker contract.
-```sol
+```typescript
 # AttackDAO.sol
 
 function attack() external {
@@ -187,7 +187,7 @@ We need to consider using `ERC20Snapshot` for the DAO contract, as demonstrated 
 - [test/3-dos-attack-1.ts](test/longer/3-dos-1.ts)
 
 #### Attack Vector
-```node
+```typescript
 # 3-dos-attack-1.ts
 
 const ATTACKER_INVESTMENT = parseEther('0.000000000001');
@@ -197,7 +197,7 @@ for (let i = 0; i < 10000; i++) {
 ```
 If an attacker invests a small amount of money numerous times in an ICO, the ICO contract may fail to distribute its ERC20 tokens because the gas limit is exceeded with the following code.
 
-```sol
+```typescript
 # TokenSale.sol
 
 function distributeTokens() public onlyOwner {
@@ -220,7 +220,7 @@ function distributeTokens() public onlyOwner {
 - [3-dos-attack-2.ts](test/3-dos-2.ts)
 
 #### Attack Vector
-```node
+```typescript
 # 3-dos-attack-2.ts
 
 const attackAuction = await deployContract('AttackAuction', [auction.target], {
@@ -231,7 +231,7 @@ let highestBid = await auction.highestBid();
 
 If the `AttackAuction` contract doesn't have any payable function, the following contract function will always fail after the attacker bids. As a result, the bid will no longer work.
 
-```sol
+```typescript
 # Auction.sol
 
 function bid() external payable {
@@ -251,7 +251,7 @@ function bid() external payable {
 - [3-dos-attack-3.ts](test/2-dao-attack-3.ts)
 
 #### Attack Vector
-```sol
+```typescript
 function flashLoan(uint256 borrowAmount) external nonReentrant {
   // Checks
   require(borrowAmount > 0, "amount should be greater than 0");
@@ -261,7 +261,7 @@ function flashLoan(uint256 borrowAmount) external nonReentrant {
 }
 ```
 This kind of code can create an accounting issue because the `poolBalance` may differ from `shibaToken.balanceOf(address(this))`. An attacker can render the code unusable with the following method.
-```node
+```typescript
 await token.connect(attacker).transfer(pool.target, parseEther('1'));
 ```
 
@@ -276,7 +276,7 @@ We have to add calculating code in the payable `receive` function.
 - [0-sensitive-on-chain-data-1.ts](test/0-sensitive-on-chain-data-1.ts)
 
 #### Attack Vector
-```sol
+```typescript
 contract SecretDoor is Ownable, ReentrancyGuard {
   bool public isLocked;
   uint8 private doorNumber;
@@ -300,7 +300,7 @@ Remember that private storage variables are never truly private!
 - [0-sensitive-on-chain-data-2.ts](test/0-sensitive-on-chain-data-2.ts)
 
 #### Attack Vector
-```sol
+```typescript
 function newRaffle(uint8[3] calldata numbers) external onlyOwner {
     raffleId += 1;
     raffles[raffleId] = numbers;
@@ -395,7 +395,7 @@ yarn vault1
 ```
 
 #### Attack Vector
-```
+```typescript
 # OptimizerVault.sol
 
 function deposit(uint256 _amount) external nonReentrant {
@@ -420,7 +420,7 @@ The fomula like this.
 2. **`deposit_share`** = `deposit_amount` * `total_share` / `total_pool`
 
 If an attacker knows the vulnerability, they can exploit the vault through **front-running** as follows.
-```
+```typescript
 # 6-optimizer-vault-1.js
 
 // Get all the tx's in the mempool
@@ -469,7 +469,7 @@ As a result, the attacker can retrieve approximately `$150,000` for an initial d
 - [7-oracle-manipulation-1.ts](test/7-oracle-manipulation-1.ts)
 
 #### Attack Vector
-```sol
+```typescript
 contract GoldOracle {
   address[] sources;
   mapping(address => uint256) public getPriceBySource;
@@ -513,7 +513,7 @@ If the keys of sources are compromized, the gold price can be manipulated.
 - [8-selfdestruct-1.ts](test/8-selfdestruct-1.ts)
 
 #### Attack Vector
-```sol
+```typescript
 # EtherGame.sol
 function deposit() public payable {
   require(msg.value == 1 ether, "You can only send 1 Ether");
@@ -534,7 +534,7 @@ An attacker can disable the deposit function by causing the `require` statement 
 #### Solution
 Don't rely on address(this).balance
 
-```sol
+```typescript
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
